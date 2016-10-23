@@ -4,6 +4,7 @@ var fs = require('fs');
 
 var AWS = require('aws-sdk');
 
+# ??
 AWS.config.region = 'eu-west-1';
 
 var ec2 = new AWS.EC2();
