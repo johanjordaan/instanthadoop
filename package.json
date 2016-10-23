@@ -1,0 +1,24 @@
+{
+  "name": "instanthadoop",
+  "version": "1.0.0",
+  "description": "This is my solution to having a on demand hadoop cluster",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/johanjordaan/instanthadoop.git"
+  },
+  "author": "Johan Jordaan",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/johanjordaan/instanthadoop/issues"
+  },
+  "homepage": "https://github.com/johanjordaan/instanthadoop#readme",
+  "dependencies": {
+    "aws-sdk": "^2.6.11",
+    "ssh2": "^0.5.2",
+    "underscore": "^1.8.3"
+  }
+}
