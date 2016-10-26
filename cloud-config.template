@@ -1,4 +1,24 @@
 #cloud-config
 
 ssh_authorized_keys:
-  - {hadoop_id}
+  - {ssh_hadoop_id.pub}
+
+write_files:
+  - path: "/home/core/.ssh/config"
+    permissions: "0400"
+    owner: "core"
+    group: "core"
+    content: >
+      {ssh_config}
+  - path: "/home/core/.ssh/hadoop_id.pub"
+    permissions: "0400"
+    owner: "core"
+    group: "core"
+    content: >
+      {ssh_hadoop_id.pub}
+  - path: "/home/core/.ssh/hadoop_id"
+    permissions: "0400"
+    owner: "core"
+    group: "core"
+    content: |
+      {ssh_hadoop_id}

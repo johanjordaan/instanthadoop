@@ -1,23 +1,67 @@
-var _ = require('underscore');
+var _ = require('lodash');
 var SshClient = require('ssh2').Client;
 var fs = require('fs');
-
 var AWS = require('aws-sdk');
 
-AWS.config.region = 'eu-west-1';
+var retry = require('./retry');
 
+AWS.config.region = 'eu-west-1';
 var ec2 = new AWS.EC2();
 
+var userData = fs.readFileSync('./cloud-config.template','utf8');
 
-var UserData = fs.readFileSync('./cloud-config.template','utf8');
-var publicKey = fs.readFileSync('./keys/hadoop_id.pub');
-UserData = UserData.replace("{hadoop_id}",publicKey);
+var sshConfig = fs.readFileSync('./ssh_config_host_template','utf8');
+var sshHadoopId = fs.readFileSync('./.ssh/hadoop_id','utf8');
+var sshHadoopIdPub = fs.readFileSync('./.ssh/hadoop_id.pub','utf8');
+
+var yamlReplace = (source,dict) => {
+	var retVal = source;
+
+	var shiftValue = (value,count) => {
+		var lines  = value.split("\n");
+		var retVal = "";
+		var indent = _.repeat(" ",count);
+
+		_.each(lines,(line)=>{
+			retVal = retVal + `${indent}${line}\n`
+		});
+		console.log(retVal);
+		return retVal
+	}
+
+	var replaceWithIndent = (key, value) => {
+		key = key.replace("\{","\\{").replace("\}","\\}").replace("\.","\\.")
+		var keyRe = new RegExp(`([ \t]*)${key}`);
+		var match = retVal.match(keyRe);
+		while(match != null) {
+			var [full,spaces] = match
+			retVal = retVal.replace(full,shiftValue(value,spaces.length))
+			match = retVal.match(keyRe);
+		}
+	}
+
+
+	_.each(_.toPairs(dict),([key,value])=>{
+		replaceWithIndent(key, value);
+	});
+
+	return retVal;
+}
+
+userData = yamlReplace(userData, {
+	"{ssh_config}":sshConfig,
+	"{ssh_hadoop_id.pub}":sshHadoopIdPub,
+	"{ssh_hadoop_id}":sshHadoopId,
+})
+
+//console.log(userData);
+fs.writeFileSync("userdata",userData,"utf8");
 
 var params = {
 	ImageId: 'ami-03cea870',
 	InstanceType: 't2.micro',
 	MinCount: 1, MaxCount: 1,
-	UserData: new Buffer(UserData).toString('base64')
+	UserData: new Buffer(userData).toString('base64')
 };
 
 ec2.runInstances(params, (err, data) => {
@@ -34,7 +78,7 @@ ec2.runInstances(params, (err, data) => {
 		console.log("Tagging instance", err ? "failure" : "success");
 	});
 
-	console.log("Waiting for instances to be running");
+/*	console.log("Waiting for instances to be running");
 	ec2.waitFor('instanceRunning', {InstanceIds:[instanceId]}, (err, data) => {
 	  if (err) console.log(err, err.stack); // an error occurred
 	  else {
@@ -45,10 +89,13 @@ ec2.runInstances(params, (err, data) => {
 					_.each(data.Reservations[0].Instances,(instance) => {
 						//console.log(instance);
 		 				console.log(instance.PublicIpAddress);
-						tryAtMost( ()=> {
-							return doStuff(instance.PublicIpAddress)
-						},10).then((resp)=>{
+						retry( ()=> {
+							return doStuff('uptime',instance.PublicIpAddress)
+						}).then((resp)=>{
 							console.log(resp);
+							return retry(()=>{
+								return doStuff('docker pull johanjordaan/instanthadoop; docker run -d johanjordaan/instanthadoop;',instance.PublicIpAddress)
+							},10,5000);
 						}).catch((err)=>{
 							console.log(err);
 						});
@@ -56,35 +103,18 @@ ec2.runInstances(params, (err, data) => {
 				}
 			});
 		}
-	});
+	});*/
 
 });
 
-// f needs to return a promise
-var tryAtMost = (f, maxRetries) => {
-	return f().then(()=>{
-		Promise.resolve(result);
-	}).catch((err)=>{
-		if (maxRetries > 0) {
-			console.log("Retry ",maxRetries)
-			// Try again if we haven't reached maxRetries yet
-			setTimeout(function() {
-				tryAtMost(f, maxRetries - 1);
-			}, 10000);
-		} else {
-			Promise.reject(err);
-		}
-	});
-}
-
-var doStuff = (ip) => {
+var doStuff = (command,ip) => {
 	return new Promise((resolve, reject)=>{
-		console.log("----->",ip);
+		console.log("----->",ip,command);
 		var conn = new SshClient();
 		var retVal = "";
 		conn.on('ready', function() {
 			console.log('Client :: ready');
-			conn.exec('uptime', function(err, stream) {
+			conn.exec(command, function(err, stream) {
 				if (err) throw err;
 				stream.on('close', function(code, signal) {
 				console.log('Stream :: close :: code: ' + code + ', signal: ' + signal);
@@ -105,7 +135,7 @@ var doStuff = (ip) => {
 			host: ip,
 			port: 22,
 			username: 'core',
-			privateKey: fs.readFileSync('./keys/hadoop_id')
+			privateKey: fs.readFileSync('./.ssh/hadoop_id')
 		});
 	});
 }

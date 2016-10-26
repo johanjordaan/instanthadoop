@@ -1,0 +1,6 @@
+Host localhost
+  Port 2022
+  User core
+  StrictHostKeyChecking no
+  UserKnownHostsFile=/dev/null
+  IdentityFile /home/core/.ssh/hadoop_id

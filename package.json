@@ -18,7 +18,7 @@
   "homepage": "https://github.com/johanjordaan/instanthadoop#readme",
   "dependencies": {
     "aws-sdk": "^2.6.11",
+    "lodash": "^4.16.4",
     "ssh2": "^0.5.2",
-    "underscore": "^1.8.3"
   }
 }
