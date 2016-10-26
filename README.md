@@ -36,19 +36,3 @@ hadoop ... ... ...
 https://blog.insightdatascience.com/spinning-up-a-free-hadoop-cluster-step-by-step-c406d56bae42#.v7h1yiwkr
 http://www.nixguys.com/blog/backup-hadoop-hdfs-amazon-s3-shell-script
 https://github.com/harrisiirak/webhdfs
-
-
-- path: "/root/.ssh/hadoop_id.pub"
-  permissions: "0644"
-  owner: "root"
-  content: |
-	 {ssh_hadoop_id.pub}
-- path: "/root/.ssh/hadoop_id"
-  permissions: "0644"
-  owner: "root"
-  content: |
-	 {ssh_hadoop_id}
-
-
-ssh_authorized_keys:
-- {ssh_hadoop_id.pub}
