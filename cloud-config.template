@@ -1,24 +1,58 @@
 #cloud-config
 
+coreos:
+  etcd2:
+    discovery: "{etcd_lookup}"
+    advertise-client-urls: "http://$public_ipv4:2379"
+    initial-advertise-peer-urls: "http://$private_ipv4:2380"
+    listen-client-urls: "http://0.0.0.0:2379,http://0.0.0.0:4001"
+    listen-peer-urls: "http://$private_ipv4:2380,http://$private_ipv4:7001"
+
+  units:
+    - name: etcd2.service
+      command: start
+    - name: flanneld.service
+      drop-ins:
+        - name: 50-network-config.conf
+          content: |
+            [Service]
+            ExecStartPre=/usr/bin/etcdctl set /coreos.com/network/config '{ "Network": "10.1.0.0/16" }'
+      command: start
+    - name: fleet.service
+      public-ip: "$public_ipv4"
+      command: start
+    - name: docker.service
+      command: start
+
+    - name: instanthadoop.service
+      content: |
+        [Unit]
+        Requires=flanneld.service
+        After=flanneld.service
+
+        [Service]
+        ExecStart=/usr/bin/docker run -v /home/core/ssh:/instanthadoop/ssh -d johanjordaan/instanthadoop
+#        Restart=always
+      command: start
+
+
+
 ssh_authorized_keys:
   - {ssh_hadoop_id.pub}
 
 write_files:
-  - path: "/home/core/.ssh/config"
+  - path: "/home/core/ssh/config"
     permissions: "0400"
-    owner: "core"
-    group: "core"
+    owner: "root"
     content: >
       {ssh_config}
-  - path: "/home/core/.ssh/hadoop_id.pub"
+  - path: "/home/core/ssh/hadoop_id.pub"
     permissions: "0400"
-    owner: "core"
-    group: "core"
+    owner: "root"
     content: >
       {ssh_hadoop_id.pub}
-  - path: "/home/core/.ssh/hadoop_id"
+  - path: "/home/core/ssh/hadoop_id"
     permissions: "0400"
-    owner: "core"
-    group: "core"
+    owner: "root"
     content: |
       {ssh_hadoop_id}

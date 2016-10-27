@@ -1,0 +1,6 @@
+Host localhost 0.0.0.0 namenode
+  Port 22
+  User root
+  StrictHostKeyChecking no
+  UserKnownHostsFile=/dev/null
+  IdentityFile /root/.ssh/hadoop_id

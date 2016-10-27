@@ -1,5 +1,12 @@
 This is my solution to having a on demand hadoop cluster
 
+
+### Overview
+
+local -> host|coreos -> container|
+		-> host|coreos -> container
+
+
 ### Dependencies
 Install a local hadoop so that you can submit jobs etc
 Mac
@@ -16,14 +23,26 @@ npm install instanthadoop
 
 ### Start the cluster
 ```
-ih --region --instance_type -az --nodes 10 --disk 20 --source s3:///
+ih up --name --region --instance_type -az --nodes 10 --disk 20 --source s3:///
 ```
+
+```
+ih down --name
+```
+
+```
+ih kill --name
+```
+
+
+
 This will start up a hadoop cluster
 - in Ireland
 - using t2 micros
 - having 10 nodes (1 name and 9 data)
 - having 20 gis storage each
 - coping the the data to work on from the s3 bucket
+
 
 ### Submit work
 ```

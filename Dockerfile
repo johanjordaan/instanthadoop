@@ -34,6 +34,7 @@ WORKDIR /instanthadoop
 
 # Copy all the config files
 #
+COPY hadoop_configs/hadoop-env.sh $HADOOP_CONF_DIR/hadoop-env.sh
 COPY hadoop_configs/core-site.xml $HADOOP_CONF_DIR/core-site.xml
 COPY hadoop_configs/yarn-site.xml $HADOOP_CONF_DIR/yarn-site.xml
 COPY hadoop_configs/mapred-site.xml $HADOOP_CONF_DIR/mapred-site.xml
@@ -41,7 +42,10 @@ COPY hadoop_configs/hdfs-site.xml $HADOOP_CONF_DIR/hdfs-site.xml
 COPY hadoop_configs/masters $HADOOP_CONF_DIR/masters
 COPY hadoop_configs/slaves $HADOOP_CONF_DIR/slaves
 
+COPY init.sh /instanthadoop/init.sh
 COPY supervisord.conf /instanthadoop/supervisord.conf
+COPY .profile /root/.profile
+
 
 EXPOSE 22
 CMD ["supervisord", "-c", "/instanthadoop/supervisord.conf"]

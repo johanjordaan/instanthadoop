@@ -1,11 +1,13 @@
 #!/bin/bash
-#export host_name=localhost
-#echo $host_name
-#sed -i `echo s/hadoop_name_node/$host_name/g` $HADOOP_CONF_DIR/core-site.xml
+mkdir -p ~/.ssh/
+cp /instanthadoop/ssh/config ~/.ssh/config
+cp /instanthadoop/ssh/hadoop_id ~/.ssh/hadoop_id
+cp /instanthadoop/ssh/hadoop_id.pub ~/.ssh/hadoop_id.pub
+cp ~/.ssh/hadoop_id.pub ~/.ssh/authorized_keys
 
-#COPY core-site.xml $HADOOP_CONF_DIR/core-site.xml
-#COPY yarn-site.xml $HADOOP_CONF_DIR/yarn-site.xml
-#COPY mapred-site.xml $HADOOP_CONF_DIR/mapred-site.xml
-#COPY hdfs-site.xml $HADOOP_CONF_DIR/hdfs-site.xml
-#COPY masters $HADOOP_CONF_DIR/masters
-#COPY slaves $HADOOP_CONF_DIR/slaves
+chmod 400 ~/.ssh/config
+chmod 400 ~/.ssh/hadoop_id
+chmod 400 ~/.ssh/authorized_keys
+chmod 400 ~/.ssh/hadoop_id.pub
+
+chown -R root:root ~/.ssh
