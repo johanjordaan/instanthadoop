@@ -22,14 +22,18 @@ npm install instanthadoop
 ### Setup
 
 ### Start the cluster
+
+Spin up the cluster
 ```
 ih up --name --region --instance_type -az --nodes 10 --disk 20 --source s3:///
 ```
 
+Stop the the cluster and stop the machines
 ```
 ih down --name
 ```
 
+Kill the
 ```
 ih kill --name
 ```

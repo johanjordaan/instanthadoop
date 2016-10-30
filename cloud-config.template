@@ -31,7 +31,7 @@ coreos:
         After=flanneld.service
 
         [Service]
-        ExecStart=/usr/bin/docker run -v /home/core/ssh:/instanthadoop/ssh -d johanjordaan/instanthadoop
+        ExecStart=/usr/bin/docker run -v /home/core/ssh:/instanthadoop/ssh -p 9000:9000 -p 8020:8020  -p 50070:50070 -d johanjordaan/instanthadoop
 #        Restart=always
       command: start
 

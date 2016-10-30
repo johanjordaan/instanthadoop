@@ -11,3 +11,5 @@ chmod 400 ~/.ssh/authorized_keys
 chmod 400 ~/.ssh/hadoop_id.pub
 
 chown -R root:root ~/.ssh
+
+/usr/sbin/sshd -D

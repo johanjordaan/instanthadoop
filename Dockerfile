@@ -30,8 +30,6 @@ RUN 	mkdir -p $HADOOP_HOME/hadoop_data/hdfs/datanode
 RUN   mkdir -p /instanthadoop /var/run/sshd
 WORKDIR /instanthadoop
 
-#hdfs namenode -format
-
 # Copy all the config files
 #
 COPY hadoop_configs/hadoop-env.sh $HADOOP_CONF_DIR/hadoop-env.sh
@@ -42,10 +40,16 @@ COPY hadoop_configs/hdfs-site.xml $HADOOP_CONF_DIR/hdfs-site.xml
 COPY hadoop_configs/masters $HADOOP_CONF_DIR/masters
 COPY hadoop_configs/slaves $HADOOP_CONF_DIR/slaves
 
-COPY init.sh /instanthadoop/init.sh
+COPY run_ssh.sh /instanthadoop/run_ssh.sh
+COPY run_hadoop.sh /instanthadoop/run_hadoop.sh
 COPY supervisord.conf /instanthadoop/supervisord.conf
+
 COPY .profile /root/.profile
 
 
 EXPOSE 22
+EXPOSE 8020
+EXPOSE 50070
+EXPOSE 9000
+
 CMD ["supervisord", "-c", "/instanthadoop/supervisord.conf"]
